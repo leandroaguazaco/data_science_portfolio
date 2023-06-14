@@ -10,7 +10,7 @@
 
 ### 1. Summary
 
-Data analytics and data science projects repository. Porfolio that contains files, shortcuts, code and bases for my data science projects through **Python**, **R**, **SQL**, **Power BI** and **SAS**. Each folder correspond to a topic or resolved data challenge.
+Data analytics and data science projects repository. Portfolio that contains files, shortcuts, code and bases for my data science projects through **Python**, **R**, **SQL**, **Power BI** and **SAS**. Each folder correspond to a topic or resolved data challenge.
 
 ### 2. Main topics: 
 
