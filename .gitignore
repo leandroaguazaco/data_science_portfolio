@@ -162,3 +162,18 @@ cython_debug/
 # RStudio Project
 .Rproj
 .Rproj.user
+.Rproj.user/
+
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+
+# User-specific files
+.Ruserdata
+
+# R Environment Variables
+.Renviron
+.Rproj.user
