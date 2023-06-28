@@ -177,3 +177,5 @@ cython_debug/
 # R Environment Variables
 .Renviron
 .Rproj.user
+
+data_science_portfolio.Rproj
