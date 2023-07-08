@@ -1,5 +1,13 @@
 <h1 align="center"> Data Science Portfolio </h1>
 
+<div align="left">
+
+  <img alt="Static Badge" src="https://img.shields.io/badge/active_repository-true-blue">
+
+  <img alt="Static Badge" src="https://img.shields.io/badge/status-in progress-green">
+
+</div>  
+
 ### 0. Contact
 
 > [**LinkedIn**](https://www.linkedin.com/in/felipe-leandro-aguazaco/)
