@@ -10,11 +10,7 @@
 
 ### 0. Contact
 
-> [**LinkedIn**](https://www.linkedin.com/in/felipe-leandro-aguazaco/)
-
-> [**DataCamp**](https://www.datacamp.com/profile/leandro-aguazaco) 
-
-> leandro.aguazaco@outlook.com
+> [**LinkedIn**](https://www.linkedin.com/in/felipe-leandro-aguazaco/), [**DataCamp**](https://www.datacamp.com/profile/leandro-aguazaco), leandro.aguazaco@outlook.com
 
 ### 1. Summary
 
