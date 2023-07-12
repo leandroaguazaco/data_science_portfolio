@@ -1,0 +1,343 @@
+---
+title: "3 - NPS TELCO ANALYSIS - R Version"
+# author: "Felipe Leandro Aguazaco"
+date: "2023-07-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      eval = TRUE,
+                      cache = TRUE,
+                      warning = FALSE, 
+                      message = FALSE, 
+                      fig.align = "center", 
+                      dev = "png")
+```
+
+> Felipe Leandro Aguazaco Rodríguez
+
+* Especialista en Estadística - Ingeniero Ambiental    
+* [LinkedIn](https://www.linkedin.com/in/felipe-leandro-aguazaco/)
+* [GitHub](https://github.com/leandroaguazaco/)  
+* leandro.aguazaco@outlook.com  
+* +57 322 294 5799  
+
+## Consideraciones Generales 
+
+Para el desarrollo de la prueba se emplea el lenguaje de programación `R` mediante su IDE `RStudio`; el análisis sobre el caso de estudio y el código desarrollado para tal fin se presentan en formato `html`, `.Rnd` y `.R`.
+
+Debido a que la variable dependiente **target** es de tipo binaria: 0 = Promotor, 1 = Dretactor, en el presente caso se realizará un análisis exploratorio de datos y posteriormente se entrenará un modelo de regresión logística con todas las variables predictores (45) disponibles. Se emplean librerías como **tidyverse**,  **data.table** y **caret**.
+
+### 0. Librerías
+
+```{r}
+# Instalar librerías
+
+# install.packages("tidyverse")
+# install.packages("caret")
+# install.packages("data.table")
+# install.packages("janitor")
+# install.packages("DataExplorer")
+# install.packages("skimr")
+# install.packages("viridis")
+
+# Cargar librerías
+
+library(tidyverse)
+library(caret)
+library(data.table)
+library(readxl)
+library(janitor)
+library(DataExplorer)
+library(skimr)
+```
+
+### 1. Cargar datos
+
+```{r}
+
+# Lectura de datos, limpieza de nombres y conversión de variables categóricas
+base_nps <- read_excel(path = "BD_NPS_PERSONAS_sample.xlsx", 
+                       sheet = "BD_NPS_PERSONAS_sample", 
+                       col_names = TRUE) %>% 
+  column_to_rownames(., var = 'ID') %>% # Establecer ID
+  clean_names() %>% # Limpiar nombres
+  mutate(across(.cols = c(antigued, grupo_edad, gener, estado_civil, region,
+                          uso_serv_cliente, data_usur, technology, band_7,
+                          max_network_voice, max_network_voice, tipo_m1, max_rech),
+                .fns = factor))
+```
+
+### 2. Análisis Exploratorio de Datos
+
+Tipos de datos originales:
+
+```{r}
+str(base_nps)
+
+```
+
+#### 2.1 Tipo de variables y Valores faltantes
+
+No se presentan valores faltantes.
+
+```{r 2.1 Missing values}
+base_nps %>% plot_intro(ggtheme = theme_bw())
+```
+
+#### 2.2 Distribución de variables numéricas
+
+Se identifican sesgos positivos en la mayoría de los casos.
+
+```{r}
+base_nps %>% # Histogramas
+  select_if(is.numeric) %>% 
+  plot_histogram(geom_histogram_args = list(color = "black"), 
+                 title = "Distribution Quantitative Variables", 
+                 ggtheme = theme_bw(), 
+                 ncol = 3,
+                 theme_config = theme(plot.title = element_text(hjust = 0.5, 
+                                                                face = "bold"), 
+                                      axis.title.x = element_text(face = "plain"),
+                                      axis.title.y = element_text(face = "plain")))
+```
+
+#### 2.3 Detección de datos atípicos: método boxplot
+
+Teniendo en cuenta los diagramas de cajas y bigotes, se observa la presencia de datos atípicos. Al identificar datos atípicos y distribuciones sesgadas, para el entrenamiento del modelo de regrsesión logística se opta por normailizar y transformar los datos. 
+
+```{r}
+base_nps %>% # Distribution: scale boxplot
+  select_if(is.numeric) %>% 
+  scale() %>%
+  boxplot()
+```
+
+#### 2.4 Test de normalidad multivariante - qqplots
+
+```{r}
+base_nps %>% # qqplot
+  select_if(is.numeric) %>% 
+  na.omit() %>% 
+  plot_qq(ggtheme = theme_bw(), 
+          geom_qq_args = list(alpha = 0.3, 
+                              color = "gray"), 
+          title = "Test de Normalidad Univariante - qqplot",
+          ncol = 4, 
+          # nrow = 3, 
+          theme_config = theme(plot.title = element_text(hjust = 0.5)))
+```
+En su mayoría, las variables de tipo numérico-continuas no presentan una distribución de tipo normal, lo cual condiciona las métricas de correlación a calcular.
+
+#### 2.5 Correlación 
+
+Se emplea la métrica no paramétrica de la correlación de rango de spearman. 
+
+```{r}
+
+base_nps %>% 
+  select_if(is.numeric) %>% 
+  na.omit() %>% 
+  plot_correlation(cor_args = list(method = "spearman"), 
+                   geom_text_args = list(color = "white", 
+                                         label.size = 0.20),
+                   title = "Correlation Heatmap",
+                   ggtheme = theme_bw(), 
+                   theme_config = theme(axis.title.x = element_blank(),
+                                        axis.text.x = element_text(angle = 90, 
+                                                                   vjust = 0.4),
+                                        axis.title.y = element_blank(), 
+                                        plot.title = element_text(face = "bold", 
+                                                                  hjust = 0.5), 
+                                        legend.position = "right", 
+                                        legend.title = element_blank())) 
+  #viridis::scale_fill_viridis(option = "D", 
+  #                            alpha = 0.8)
+
+```
+
+Se denota una correlación significativa entre variables como calidad_producto, calificación_voz, señal_voz, estabilidad_llamada,entre otras.
+
+#### 2.6 Frecuencia variables categóricas 
+
+```{r}
+base_nps %>% 
+  plot_bar(ggtheme = theme_bw(), # Bar plot       
+           ncol = 3)
+```
+La variable **target** no demuestra desbalanceo.Por su parte variables como promo_recarga_m1, dia_sorpresa_mq, pyp_m1, entre otras, demuestran baja variabilidad por lo cual se puede prescindir en la construcción del modelo de regresión.
+
+### 3. Datos de entrenamiento y testeo
+
+Del total de datos, se prevee emplear el 80% de datos para entrear el modelo y el 20% restante para evaluar el performance del modelo. 
+
+```{r}
+set.seed(3456)
+trainIndex <- createDataPartition(base_nps$target, 
+                                  p = 0.8, 
+                                  list = FALSE, 
+                                  times = 1)
+
+train_base_nps <- base_nps[trainIndex, ]
+test_base_nps  <- base_nps[-trainIndex,]
+```
+
+
+### 4 Preprocesamiento de datos
+
+Técnicas basadas en modelos de regresión requieren del procesamiento de datos. Con base en lo anterior y en el análisis exploratorio de datos se propone realizar los siguiente procesos:
+
+* One - hot - encoding.
+* Eliminar variables altamente correlacionadas.
+* Prescindir de variables con varianza aproximadamente 0.
+* Escalar mediante el método estándar debido a la variabilidad en la escala de variables. 
+* Transformación de datos mediente el método de Yeo-Johnson, debido a la presencia de datos atípicos y distribuciones sesgadas.
+* Debido a la sobredimensionalidad del set de datos, también es favorable aplicar técnicas de reducción de dimensionalidad, en el presente caso no se aplicará.
+
+#### 4.1 One Hot Encoding
+
+```{r}
+# Instanciar codificador
+dummy_data <- dummyVars(formula = ~ ., 
+                        data = train_base_nps, 
+                        drop2nd = FALSE)
+
+# Reemplazar datos
+train_base_nps <- predict(dummy_data, 
+                          newdata = train_base_nps) %>% 
+  as.data.frame()
+```
+
+#### 4.2 Predictores correlacionados
+
+```{r eval=FALSE}
+# Matriz de correlación
+cor_matrix <- cor(train_base_nps %>%
+                    select_if(is.numeric) %>% 
+                    select(-target), 
+                    method = "spearman")
+
+highlycor <- findCorrelation(cor_matrix, 
+                             cutoff = 0.75)
+
+# Eliminar variables correlacionadas
+train_base_nps <- train_base_nps[ , -highlycor]
+```
+
+#### 4.3 Normalización y transformación de datos
+
+```{r, eval=FALSE}
+# Procesador
+pp_no_nzv <- preProcess(train_base_nps %>% select(-target), 
+                        method = c("corr", "center", "scale", "YeoJohnson", "nzv"))
+
+train_base_nps1 = predict(pp_no_nzv, 
+                          newdata = train_base_nps %>% select(-target))
+
+train_base_nps <- merge(train_base_nps1, 
+                        train_base_nps %>% select(target),
+                        by = "row.names",
+                        sort = FALSE,
+                        all = TRUE) %>% 
+  column_to_rownames("Row.names")
+```
+
+### 5 Modelo de regresión logística
+
+#### 5.1 Función base glm()
+
+```{r}
+log_model <- glm(target ~ ., 
+                 data = train_base_nps,
+                 family = binomial(link='logit'))
+
+summary(log_model)
+```
+
+#### 5.2 Usando la librería caret
+
+```{r}
+# Variables predictoras de entrenamiento
+x_train = train_base_nps %>% 
+  select(-target)
+
+# Corregir nombres
+names(x_train) <- make.names(names(x_train), unique = TRUE)
+
+# Variable objetivo de entrenamiento
+y_train <- train_base_nps$target %>%
+  as.factor()
+
+
+# Modelo
+set.seed(20230704) # 2023/07/04
+log_model_caret <- train(x = x_train, 
+                         y = y_train, # Con datos codificados
+                         method = "glm",
+                         family = "binomial",
+                         preProcess = c("corr", "center", "scale", "YeoJohnson", "nzv"), # Normalización y transformación
+                         metric = "Accuracy", # "Accuracy" o "ROC".
+                         trControl = trainControl(method = "cv", # Validación cruzada
+                                                  number = 4, #4-fold cross-validation),
+                                                  #summaryFunction = twoClassSummary 
+                                                  #classProbs = TRUE,
+                                                  #savePredictions = TRUE
+                                                  )
+                         # tuneGrid = logGrid
+                         ) 
+
+
+```
+
+```{r}
+print(log_model_caret)
+log_model_caret$preProcess # Preprocesamiento
+```
+### 6. Evaluación del modelo
+
+#### 6.1 Codificación del dataset de testeo
+
+```{r}
+test_base_nps <- predict(dummy_data, 
+                         newdata = test_base_nps) %>% 
+  as.data.frame()
+
+# Predictores de testeo
+x_test <- test_base_nps %>% 
+  select(-target)
+names(x_test) <- make.names(names(x_test), unique = TRUE)
+
+# Objetivo de testeo
+y_test <- test_base_nps$target %>%
+  as.factor()
+```
+
+#### 6.2 Predicción en el dataset de testeo
+
+```{r}
+pred_log_model_caret <- predict(object = log_model_caret, 
+                                newdata = x_test, 
+                                type = "raw")
+```
+
+#### 6.3 Matriz de confusión
+
+```{r}
+caret::confusionMatrix(pred_log_model_caret, 
+                       y_test)
+```
+
+#### 6.4 Importancia según variables
+
+```{r}
+plot(varImp(log_model_caret))
+```
+
+### 7. Supuestos estadísticos
+
+```{r}
+par(mfrow = c(2, 2)) # Change the panel layout to 2 x 2
+plot(log_model)
+```
+
