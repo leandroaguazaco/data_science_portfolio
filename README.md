@@ -8,25 +8,21 @@
 
 </div>  
 
-### 0. Contact
+### Contact
 
-> [**LinkedIn**](https://www.linkedin.com/in/felipe-leandro-aguazaco/), [**DataCamp**](https://www.datacamp.com/profile/leandro-aguazaco), leandro.aguazaco@outlook.com
+> [**LinkedIn**](https://www.linkedin.com/in/felipe-leandro-aguazaco/)
+
+> [**DataCamp**](https://www.datacamp.com/profile/leandro-aguazaco)
 
 ### 1. Summary
 
-Data analytics and data science projects repository. Portfolio that contains files, shortcuts, code and bases for my data science projects through **Python**, **R**, **SQL**, **Power BI** and **SAS**. Each folder correspond to a topic or resolved data challenge.
+Data analytics and data science projects repository. Portfolio that contains files, shortcuts, code and bases for my data science projects through **Python**, **R**, **SQL**, **Power BI** and **SAS**. Each folder, inside `Projects` folder, correspond to a topic or resolved data challenge.
 
-### 2. Main topics: 
+### 2. Projects
 
-* **Load common and masive files**
+> [01-NPS_Generic_Analysis](https://github.com/leandroaguazaco/data_science_portfolio/tree/main/Projects/01-NPS_Analysis) 🌘
 
-* **Exploratory data analysis**
+> [02-PowerBI_Projects](https://github.com/leandroaguazaco/data_science_portfolio/tree/main/Projects/02-PowerBI_Projects) 🦧
 
-* **Feature engineering**
-
-* **Feature selection**
-
-* **Supervised learning**
-
-* **Unsupervised learning**
+> [03-NPS_Telco_Analysis](https://github.com/leandroaguazaco/data_science_portfolio/tree/main/Projects/03-NPS_Telco_Analysis) ⚡
 
