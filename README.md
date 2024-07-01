@@ -28,4 +28,4 @@ Data analytics and data science projects repository. A portfolio that contains f
 
 > [04-Churn_Telco_Analysis](https://github.com/leandroaguazaco/data_science_portfolio/tree/main/Projects/04-Churn_Telco_Analysis) ⛳ <img alt="Static Badge" src="https://img.shields.io/badge/status-finished-green">
 
-> [05-Survey_NLP](https://github.com/leandroaguazaco/data_science_portfolio/tree/main/Projects05-Survey_NLP) ⏰ <img alt="Static Badge" src="https://img.shields.io/badge/status-in progress-blue">
+> [05-Survey_NLP](https://github.com/leandroaguazaco/data_science_portfolio/tree/main/Projects/05-Survey_NLP) ⏰ <img alt="Static Badge" src="https://img.shields.io/badge/status-in progress-blue">
